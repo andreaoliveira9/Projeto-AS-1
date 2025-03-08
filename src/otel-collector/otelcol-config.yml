@@ -93,6 +93,18 @@ processors:
     check_interval: 5s
     limit_percentage: 80
     spike_limit_percentage: 25
+  transform:
+    trace_statements:
+      - context: span
+        statements:
+          # Delete sensitive fields
+          - delete_key(attributes, "password")
+          - delete_key(attributes, "credit_card")
+          - delete_key(attributes, "card.number")
+          # Redact PII
+          - set(attributes["user.email"], "[REDACTED]") where attributes["user.email"] != nil
+          - set(attributes["user.name"], "[REDACTED]") where attributes["user.name"] != nil
+          - set(attributes["user.id"], "[ID]") where attributes["user.id"] != nil
 
 connectors:
   spanmetrics:
@@ -101,7 +113,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, transform, batch]
       exporters: [otlp, debug, spanmetrics]
     metrics:
       receivers: [hostmetrics, docker_stats, otlp, spanmetrics]
