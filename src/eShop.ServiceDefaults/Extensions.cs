@@ -74,7 +74,7 @@ public static partial class Extensions
                 tracing.AddAspNetCoreInstrumentation()
                     .AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSource("Experimental.Microsoft.Extensions.AI");                    
+                    .AddSource("Experimental.Microsoft.Extensions.AI");
             });
 
         builder.AddOpenTelemetryExporters();
@@ -84,14 +84,30 @@ public static partial class Extensions
 
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
     {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        var collectorHost = builder.Configuration["OTEL_COLLECTOR_HOST"] ?? "localhost";
+        var collectorPortGrpc = builder.Configuration["OTEL_COLLECTOR_PORT_GRPC"] ?? "4317";
+        var collectorUri = new Uri($"http://{collectorHost}:{collectorPortGrpc}");
 
-        if (useOtlpExporter)
-        {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
-            builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
-            builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
-        }
+        builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => 
+            logging.AddOtlpExporter(options =>
+            {
+                options.Endpoint = collectorUri;
+                options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+            }));
+
+        builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => 
+            metrics.AddOtlpExporter(options =>
+            {
+                options.Endpoint = collectorUri;
+                options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+            }));
+
+        builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => 
+            tracing.AddOtlpExporter(options =>
+            {
+                options.Endpoint = collectorUri;
+                options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+            }));
 
         return builder;
     }
