@@ -2,15 +2,15 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PORT_GRPC}
+        endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}"
       http:
-        endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PORT_HTTP}
+        endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}"
         cors:
           allowed_origins:
             - "http://*"
             - "https://*"
   docker_stats:
-    endpoint: unix:///var/run/docker.sock
+    endpoint: "unix:///var/run/docker.sock"
 
   hostmetrics:
     root_path: /hostfs
@@ -71,7 +71,7 @@ receivers:
         mute_process_user_error: true
 
 exporters:
-  debug:
+  debug: {} 
   otlp:
     endpoint: "jaeger:4317"
     tls:
@@ -80,6 +80,8 @@ exporters:
     endpoint: "http://prometheus:9090/api/v1/otlp"
     tls:
       insecure: true
+  prometheus:
+    endpoint: "0.0.0.0:8889"
   opensearch:
     logs_index: otel
     http:
@@ -88,14 +90,14 @@ exporters:
         insecure: true
 
 processors:
-  batch:
+  batch: {}
   memory_limiter:
     check_interval: 1s
     limit_percentage: 65
     spike_limit_percentage: 20
 
 connectors:
-  spanmetrics:
+  spanmetrics: {}
 
 service:
   pipelines:
@@ -106,7 +108,7 @@ service:
     metrics:
       receivers: [hostmetrics, docker_stats, otlp, spanmetrics]
       processors: [memory_limiter, batch]
-      exporters: [otlphttp/prometheus, debug]
+      exporters: [otlphttp/prometheus, prometheus, debug]
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
@@ -116,9 +118,9 @@ service:
       level: detailed
       readers:
         - periodic:
-            interval: 10000
-            timeout: 5000
+            interval: 10
+            timeout: 5
             exporter:
               otlp:
                 protocol: grpc
-                endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PORT_GRPC}
+                endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}"
