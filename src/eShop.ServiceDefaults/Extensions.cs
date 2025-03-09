@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics.Metrics;
 
 namespace eShop.ServiceDefaults;
 
@@ -44,7 +45,47 @@ public static partial class Extensions
 
         builder.ConfigureOpenTelemetry();
 
+        builder.Services.AddCheckoutTelemetry();
+
         return builder;
+    }
+
+    public static IServiceCollection AddCheckoutTelemetry(this IServiceCollection services)
+    {
+        // Register checkout process metrics
+        services.ConfigureOpenTelemetryMeterProvider(meter =>
+        {
+            meter.AddMeter("eShop.Checkout.Metrics");
+        });
+        
+        // Register checkout metrics with a single meter
+        services.AddSingleton(sp => 
+        {
+            var meter = new Meter("eShop.Checkout.Metrics", "1.0.0");
+            
+            // Register counters for the checkout process
+            meter.CreateCounter<long>("checkout_initiated_total", 
+                description: "Count of checkout processes initiated");
+                
+            meter.CreateCounter<long>("orders_created_total", 
+                description: "Count of orders successfully created");
+                
+            meter.CreateCounter<long>("payments_processed_total", 
+                description: "Count of payments processed");
+                
+            meter.CreateCounter<long>("payments_succeeded_total", 
+                description: "Count of payments that succeeded");
+                
+            meter.CreateCounter<long>("payments_failed_total", 
+                description: "Count of payments that failed");
+                
+            meter.CreateHistogram<double>("checkout_duration_seconds", 
+                description: "Duration of the checkout process in seconds");
+                
+            return meter;
+        });
+        
+        return services;
     }
 
     public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
@@ -61,7 +102,8 @@ public static partial class Extensions
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
-                    .AddMeter("Experimental.Microsoft.Extensions.AI");
+                    .AddMeter("Experimental.Microsoft.Extensions.AI")
+                    .AddMeter("eShop.Checkout.Metrics");
             })
             .WithTracing(tracing =>
             {
@@ -74,7 +116,12 @@ public static partial class Extensions
                 tracing.AddAspNetCoreInstrumentation()
                     .AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSource("Experimental.Microsoft.Extensions.AI");
+                    .AddSource("Experimental.Microsoft.Extensions.AI")
+                    .AddSource(OpenTelemetryCheckoutExtensions.CheckoutActivitySource.Name)
+                    .AddSource(OpenTelemetryCheckoutExtensions.OrderingActivitySource.Name)
+                    .AddSource(OpenTelemetryCheckoutExtensions.BasketActivitySource.Name)
+                    .AddSource(OpenTelemetryCheckoutExtensions.PaymentActivitySource.Name)
+                    .AddSource(OpenTelemetryCheckoutExtensions.CatalogActivitySource.Name);
             });
 
         builder.AddOpenTelemetryExporters();
@@ -108,6 +155,12 @@ public static partial class Extensions
                 options.Endpoint = collectorUri;
                 options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
             }));
+        
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+        }
 
         return builder;
     }
