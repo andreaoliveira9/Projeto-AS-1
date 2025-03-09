@@ -1,0 +1,15 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+
+apiVersion: 1
+providers:
+  - name: 'eShop'
+    orgId: 1
+    folder: 'eShop'
+    folderUid: 'eShop'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/eShop
