@@ -90,9 +90,9 @@ exporters:
 processors:
   batch:
   memory_limiter:
-    check_interval: 5s
-    limit_percentage: 80
-    spike_limit_percentage: 25
+    check_interval: 1s
+    limit_percentage: 65
+    spike_limit_percentage: 20
 
 connectors:
   spanmetrics:
