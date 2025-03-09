@@ -9,6 +9,66 @@ receivers:
           allowed_origins:
             - "http://*"
             - "https://*"
+  docker_stats:
+    endpoint: unix:///var/run/docker.sock
+
+  hostmetrics:
+    root_path: /hostfs
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      disk:
+      load:
+      filesystem:
+        exclude_mount_points:
+          mount_points:
+            - /dev/*
+            - /proc/*
+            - /sys/*
+            - /run/k3s/containerd/*
+            - /var/lib/docker/*
+            - /var/lib/kubelet/*
+            - /snap/*
+          match_type: regexp
+        exclude_fs_types:
+          fs_types:
+            - autofs
+            - binfmt_misc
+            - bpf
+            - cgroup2
+            - configfs
+            - debugfs
+            - devpts
+            - devtmpfs
+            - fusectl
+            - hugetlbfs
+            - iso9660
+            - mqueue
+            - nsfs
+            - overlay
+            - proc
+            - procfs
+            - pstore
+            - rpc_pipefs
+            - securityfs
+            - selinuxfs
+            - squashfs
+            - sysfs
+            - tracefs
+          match_type: strict
+      memory:
+        metrics:
+          system.memory.utilization:
+            enabled: true
+      network:
+      paging:
+      processes:
+      process:
+        mute_process_exe_error: true
+        mute_process_io_error: true
+        mute_process_user_error: true
 
 exporters:
   debug:
@@ -37,20 +97,14 @@ processors:
 connectors:
   spanmetrics:
 
-extensions:
-  health_check:
-  pprof:
-  zpages:
-
 service:
-  extensions: [health_check, pprof, zpages]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [otlp, debug, spanmetrics]
     metrics:
-      receivers: [otlp, spanmetrics]
+      receivers: [hostmetrics, docker_stats, otlp, spanmetrics]
       processors: [memory_limiter, batch]
       exporters: [otlphttp/prometheus, debug]
     logs:
