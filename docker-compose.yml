@@ -138,13 +138,10 @@ services:
     logging: *logging
   
   load-generator:
-    image: ${IMAGE_NAME}:${DEMO_VERSION}-load-generator
     container_name: load-generator
     build:
       context: ./
       dockerfile: ${LOAD_GENERATOR_DOCKERFILE}
-      cache_from:
-        - ${IMAGE_NAME}:${IMAGE_VERSION}-load-generator
     deploy:
       resources:
         limits:
