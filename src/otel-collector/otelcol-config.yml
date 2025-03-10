@@ -97,21 +97,9 @@ processors:
     spike_limit_percentage: 20
   attributes:
     actions:
-      - key: password
-        action: delete
-      - key: credit_card
-        action: delete
-      - key: card.number
-        action: delete
-      - key: user.email
+      - key: event.userId
         action: update
-        value: "[REDACTED]"
-      - key: user.name
-        action: update
-        value: "[REDACTED]"
-      - key: user.id
-        action: update
-        value: "[ID]"
+        value: "****"
 
 connectors:
   spanmetrics: {}

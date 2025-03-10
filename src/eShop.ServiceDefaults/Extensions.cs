@@ -62,7 +62,8 @@ public static partial class Extensions
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
                     .AddMeter("Experimental.Microsoft.Extensions.AI")
-                    .AddMeter("eShop.Ordering.API");
+                    .AddMeter("eShop.Ordering.API")
+                    .AddMeter("eShop.Basket.API");
             })
             .WithTracing(tracing =>
             {
@@ -76,7 +77,8 @@ public static partial class Extensions
                     .AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("Experimental.Microsoft.Extensions.AI")
-                    .AddSource("eShop.Ordering.API");
+                    .AddSource("eShop.Ordering.API")
+                    .AddSource("eShop.Basket.API");
             });
 
         builder.AddOpenTelemetryExporters();

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using Polly.Retry;
+using System.Text;
+using System.Text.RegularExpressions;
 
 public sealed class RabbitMQEventBus(
     ILogger<RabbitMQEventBus> logger,
@@ -157,7 +159,7 @@ public sealed class RabbitMQEventBus(
 
         try
         {
-            activity?.SetTag("message", message);
+            activity?.SetTag("message", MaskSensitiveFields(message));
 
             if (message.Contains("throw-fake-exception", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -177,6 +179,31 @@ public sealed class RabbitMQEventBus(
         // in a REAL WORLD app this should be handled with a Dead Letter Exchange (DLX). 
         // For more information see: https://www.rabbitmq.com/dlx.html
         _consumerChannel.BasicAck(eventArgs.DeliveryTag, multiple: false);
+    }
+
+    private static string MaskSensitiveFields(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            return message;
+        }
+        
+        // Lista de chaves sensíveis a serem mascaradas
+        string[] keysToMask = { "BuyerName", "BuyerIdentityGuid", "UserId" };
+
+        foreach (var key in keysToMask)
+        {
+            // Verifica se a mensagem contém a chave para evitar regex desnecessária
+            if (message.Contains(key))
+            {
+                // Expressão regular para localizar o padrão "key": "valor"
+                string pattern = $"(\"{key}\"\\s*:\\s*\")[^\"]*(\")";
+                // Substitui o valor encontrado pela máscara "****"
+                message = Regex.Replace(message, pattern, "$1****$2");
+            }
+        }
+
+        return message;
     }
 
     private async Task ProcessEvent(string eventName, string message)

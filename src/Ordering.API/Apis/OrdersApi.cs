@@ -9,7 +9,6 @@ public static class OrdersApi
     private static readonly ActivitySource ActivitySource = new("eShop.Ordering.API");
     private static readonly Meter Meter = new("eShop.Ordering.API");
     private static readonly Counter<long> OrdersCreatedCounter = Meter.CreateCounter<long>("orders.created", "count", "Total number of orders created");
-
     // CreateOrder endpoint-specific metrics
     private static readonly Counter<long> CreateOrderAttemptsCounter = Meter.CreateCounter<long>("create.order.attempts", "count", "Total number of create order attempts");
     private static readonly Counter<long> CreateOrderSuccessCounter = Meter.CreateCounter<long>("create.order.success", "count", "Total number of create order successes");
