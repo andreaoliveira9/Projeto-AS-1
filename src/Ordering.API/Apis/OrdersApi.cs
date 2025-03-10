@@ -1,9 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using CardType = eShop.Ordering.API.Application.Queries.CardType;
 using Order = eShop.Ordering.API.Application.Queries.Order;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 public static class OrdersApi
 {
+    private static readonly ActivitySource ActivitySource = new("eShop.Ordering.API");
+    private static readonly Meter Meter = new("eShop.Ordering.API");
+    private static readonly Counter<long> OrdersCreatedCounter = Meter.CreateCounter<long>("orders.created", "count", "Total number of orders created");
+
     public static RouteGroupBuilder MapOrdersApiV1(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("api/orders").HasApiVersion(1.0);
@@ -120,14 +126,13 @@ public static class OrdersApi
         CreateOrderRequest request,
         [AsParameters] OrderServices services)
     {
-        
-        //mask the credit card number
-        
+        using var activity = ActivitySource.StartActivity("CreateOrderAsync");
+
         services.Logger.LogInformation(
             "Sending command: {CommandName} - {IdProperty}: {CommandId}",
             request.GetGenericTypeName(),
             nameof(request.UserId),
-            request.UserId); //don't log the request as it has CC number
+            request.UserId);
 
         if (requestId == Guid.Empty)
         {
@@ -157,6 +162,9 @@ public static class OrdersApi
             if (result)
             {
                 services.Logger.LogInformation("CreateOrderCommand succeeded - RequestId: {RequestId}", requestId);
+
+                // Incrementa o contador de pedidos criados
+                OrdersCreatedCounter.Add(1, new KeyValuePair<string, object>("UserId", request.UserId));
             }
             else
             {
