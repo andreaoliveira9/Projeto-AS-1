@@ -95,6 +95,23 @@ processors:
     check_interval: 1s
     limit_percentage: 65
     spike_limit_percentage: 20
+  attributes:
+    actions:
+      - key: password
+        action: delete
+      - key: credit_card
+        action: delete
+      - key: card.number
+        action: delete
+      - key: user.email
+        action: update
+        value: "[REDACTED]"
+      - key: user.name
+        action: update
+        value: "[REDACTED]"
+      - key: user.id
+        action: update
+        value: "[ID]"
 
 connectors:
   spanmetrics: {}
@@ -103,7 +120,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, attributes, batch]
       exporters: [otlp, debug, spanmetrics]
     metrics:
       receivers: [hostmetrics, docker_stats, otlp, spanmetrics]
@@ -111,7 +128,7 @@ service:
       exporters: [otlphttp/prometheus, prometheus, debug]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, attributes, batch]
       exporters: [opensearch, debug]
   telemetry:
     metrics:
