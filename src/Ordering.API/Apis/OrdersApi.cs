@@ -10,6 +10,12 @@ public static class OrdersApi
     private static readonly Meter Meter = new("eShop.Ordering.API");
     private static readonly Counter<long> OrdersCreatedCounter = Meter.CreateCounter<long>("orders.created", "count", "Total number of orders created");
 
+    // CreateOrder endpoint-specific metrics
+    private static readonly Counter<long> CreateOrderAttemptsCounter = Meter.CreateCounter<long>("create.order.attempts", "count", "Total number of create order attempts");
+    private static readonly Counter<long> CreateOrderSuccessCounter = Meter.CreateCounter<long>("create.order.success", "count", "Total number of create order successes");
+    private static readonly Counter<long> CreateOrderFailureCounter = Meter.CreateCounter<long>("create.order.failure", "count", "Total number of create order failures");
+    private static readonly Histogram<double> CreateOrderProcessingTime = Meter.CreateHistogram<double>("create.order.processing.time", "milliseconds", "Time taken to process create order command");
+
     public static RouteGroupBuilder MapOrdersApiV1(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("api/orders").HasApiVersion(1.0);
@@ -126,51 +132,70 @@ public static class OrdersApi
         CreateOrderRequest request,
         [AsParameters] OrderServices services)
     {
-        using var activity = ActivitySource.StartActivity("CreateOrderAsync");
+        // Start an activity for tracing with important tags
+        using var activity = ActivitySource.StartActivity("CreateOrderAsync", ActivityKind.Server);
+        activity?.SetTag("endpoint", "CreateOrder");
+        activity?.SetTag("request.id", requestId);
+        activity?.SetTag("user.id", request.UserId);
 
-        services.Logger.LogInformation(
-            "Sending command: {CommandName} - {IdProperty}: {CommandId}",
-            request.GetGenericTypeName(),
-            nameof(request.UserId),
-            request.UserId);
+        // Start timing the processing of this endpoint
+        var stopwatch = Stopwatch.StartNew();
+        CreateOrderAttemptsCounter.Add(1);
+        services.Logger.LogInformation("CreateOrderAsync: Attempting to create order.");
 
         if (requestId == Guid.Empty)
         {
-            services.Logger.LogWarning("Invalid IntegrationEvent - RequestId is missing - {@IntegrationEvent}", request);
+            stopwatch.Stop();
+            CreateOrderFailureCounter.Add(1);
+            services.Logger.LogWarning("CreateOrderAsync: RequestId is empty. Aborting.");
             return TypedResults.BadRequest("RequestId is missing.");
         }
 
-        using (services.Logger.BeginScope(new List<KeyValuePair<string, object>> { new("IdentifiedCommandId", requestId) }))
+        using (services.Logger.BeginScope(new List<KeyValuePair<string, object>>
+               { new("IdentifiedCommandId", requestId) }))
         {
-            var maskedCCNumber = request.CardNumber.Substring(request.CardNumber.Length - 4).PadLeft(request.CardNumber.Length, 'X');
-            var createOrderCommand = new CreateOrderCommand(request.Items, request.UserId, request.UserName, request.City, request.Street,
-                request.State, request.Country, request.ZipCode,
-                maskedCCNumber, request.CardHolderName, request.CardExpiration,
-                request.CardSecurityNumber, request.CardTypeId);
+            // Mask credit card number to ensure sensitive data is not logged
+            var maskedCCNumber = request.CardNumber.Substring(request.CardNumber.Length - 4)
+                                   .PadLeft(request.CardNumber.Length, 'X');
+            var createOrderCommand = new CreateOrderCommand(
+                request.Items,
+                request.UserId,
+                request.UserName,
+                request.City,
+                request.Street,
+                request.State,
+                request.Country,
+                request.ZipCode,
+                maskedCCNumber,
+                request.CardHolderName,
+                request.CardExpiration,
+                request.CardSecurityNumber,
+                request.CardTypeId);
 
             var requestCreateOrder = new IdentifiedCommand<CreateOrderCommand, bool>(createOrderCommand, requestId);
 
-            services.Logger.LogInformation(
-                "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                requestCreateOrder.GetGenericTypeName(),
-                nameof(requestCreateOrder.Id),
-                requestCreateOrder.Id,
-                requestCreateOrder);
+            // Log non-sensitive command details
+            services.Logger.LogInformation("CreateOrderAsync: Sending command {CommandName} with Id {CommandId}",
+                requestCreateOrder.GetGenericTypeName(), requestCreateOrder.Id);
 
             var result = await services.Mediator.Send(requestCreateOrder);
+            stopwatch.Stop();
+            CreateOrderProcessingTime.Record(stopwatch.ElapsedMilliseconds);
 
             if (result)
             {
-                services.Logger.LogInformation("CreateOrderCommand succeeded - RequestId: {RequestId}", requestId);
-
-                // Incrementa o contador de pedidos criados
+                services.Logger.LogInformation("CreateOrderAsync: Order created successfully. RequestId: {RequestId}", requestId);
                 OrdersCreatedCounter.Add(1, new KeyValuePair<string, object>("UserId", request.UserId));
+                CreateOrderSuccessCounter.Add(1);
             }
             else
             {
-                services.Logger.LogWarning("CreateOrderCommand failed - RequestId: {RequestId}", requestId);
+                services.Logger.LogWarning("CreateOrderAsync: Order creation failed. RequestId: {RequestId}", requestId);
+                CreateOrderFailureCounter.Add(1);
             }
 
+            // Enrich the activity with processing time
+            activity?.SetTag("processing.time.ms", stopwatch.ElapsedMilliseconds);
             return TypedResults.Ok();
         }
     }
