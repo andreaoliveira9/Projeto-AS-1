@@ -4241,7 +4241,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4257,7 +4258,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 88
+            "y": 90
           },
           "id": 32,
           "interval": "$minstep",
@@ -4273,11 +4274,12 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "mode": "multi",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.1",
+          "pluginVersion": "11.5.2",
           "targets": [
             {
               "datasource": {
@@ -4349,7 +4351,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4365,7 +4368,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 88
+            "y": 90
           },
           "id": 81,
           "interval": "$minstep",
@@ -4381,11 +4384,12 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "mode": "multi",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.1",
+          "pluginVersion": "11.5.2",
           "targets": [
             {
               "datasource": {
@@ -4457,7 +4461,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -4473,7 +4478,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 88
+            "y": 90
           },
           "id": 82,
           "interval": "$minstep",
@@ -4489,11 +4494,12 @@
               "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "mode": "multi",
               "sort": "none"
             }
           },
-          "pluginVersion": "11.3.1",
+          "pluginVersion": "11.5.2",
           "targets": [
             {
               "datasource": {
@@ -4801,7 +4807,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 291
+            "y": 299
           },
           "id": 69,
           "interval": "$minstep",
@@ -5112,7 +5118,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 291
+            "y": 299
           },
           "id": 70,
           "interval": "$minstep",
@@ -5176,7 +5182,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 300
+            "y": 308
           },
           "id": 72,
           "interval": "$minstep",
@@ -5264,7 +5270,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 300
+            "y": 308
           },
           "id": 74,
           "interval": "$minstep",
@@ -5352,7 +5358,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 308
+            "y": 316
           },
           "id": 73,
           "interval": "$minstep",
@@ -5440,7 +5446,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 308
+            "y": 316
           },
           "id": 75,
           "interval": "$minstep",
@@ -5542,7 +5548,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 350
+            "y": 358
           },
           "id": 76,
           "interval": "$minstep",
@@ -5630,7 +5636,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 350
+            "y": 358
           },
           "id": 78,
           "interval": "$minstep",
@@ -5793,7 +5799,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 212
+            "y": 220
           },
           "id": 64,
           "interval": "$minstep",
@@ -5918,7 +5924,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 212
+            "y": 220
           },
           "id": 65,
           "interval": "$minstep",
@@ -6013,9 +6019,7 @@
   "preload": false,
   "refresh": "",
   "schemaVersion": 40,
-  "tags": [
-    "opentelemetry"
-  ],
+  "tags": [],
   "templating": {
     "list": [
       {
