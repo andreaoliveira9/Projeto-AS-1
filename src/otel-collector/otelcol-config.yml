@@ -100,6 +100,9 @@ processors:
       - key: event.userId
         action: update
         value: "****"
+      - key: user.id
+        action: update
+        value: "****"
 
 connectors:
   spanmetrics: {}
