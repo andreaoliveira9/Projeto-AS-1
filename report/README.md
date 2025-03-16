@@ -97,6 +97,8 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
 - Exports collected telemetry to Jaeger (for tracing), Prometheus (for metrics), and OpenSearch (for logs).
 
   ```yaml
+  # src/otel-collector/otelcol-config.yml
+
   receivers:
     otlp:
       protocols:
@@ -246,6 +248,8 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
  - Exposes a `/metrics` endpoint for further analysis.
    
     ```yaml
+    # src/prometheus/prometheus-config.yaml
+
     global:
       scrape_interval: 5s
       scrape_timeout: 3s
@@ -287,6 +291,8 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
 - Configured with multiple data sources:
    - **Prometheus** (metrics visualization) with a link to Jaeger for trace lookup.
       ```yaml
+      # src/grafana/datasources/deafult.yaml
+
       apiVersion: 1
 
       datasources:
@@ -307,6 +313,8 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
       ```
     - **Jaeger** (trace visualization) for distributed tracing.
       ```yaml
+      # src/grafana/datasources/jaeger.yaml
+
       apiVersion: 1
 
       datasources:
@@ -319,6 +327,8 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
       ```
     - **OpenSearch** (log visualization) to monitor application logs.
       ```yaml
+      # src/grafana/datasources/opensearch.yaml
+
       apiVersion: 1
 
       datasources:
@@ -346,6 +356,8 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
 The `OTEL Collector` is the central component for collecting telemetry data from different services. To connect the application to the OTEL Collector, I made the following changes:
 
 ```csharp
+// src/eShop.ServiceDefaults/Extensions.cs
+
 private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
     {
         var collectorHost = builder.Configuration["OTEL_COLLECTOR_HOST"] ?? "localhost";
@@ -384,6 +396,8 @@ private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostAppli
 I added custom trace spans and metrics to provide more detailed insights into the order creation flow. This involved creating custom spans for each step of the flow and recording metrics for key operations.
 
 ```csharp
+// src/eShop.ServiceDefaults/Extensions.cs
+
 public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
         builder.Logging.AddOpenTelemetry(logging =>
@@ -428,6 +442,8 @@ public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicati
 In the `CreateOrderAsync` method of the Orders API, trace enrichment and custom metrics are implemented using OpenTelemetry.
 
 ```csharp
+// src/Ordering.API/Apis/OrdersApi.cs
+
 public static class OrdersApi
 {
     private static readonly ActivitySource ActivitySource = new("eShop.Ordering.API");
@@ -556,6 +572,8 @@ The Meter API from OpenTelemetry is used to track key performance indicators:
 In the `OrderStartedIntegrationEventHandler` method of the Orders API, trace enrichment and custom metrics are implemented using OpenTelemetry.
 
 ```csharp
+// src/Basket.API/IntegrationEvents/EventHandling/OrderStartedIntegrationEventHandler.cs
+
 public class OrderStartedIntegrationEventHandler(
     IBasketRepository repository,
     ILogger<OrderStartedIntegrationEventHandler> logger) : IIntegrationEventHandler<OrderStartedIntegrationEvent>
@@ -738,6 +756,8 @@ To ensure the security and privacy of user data, sensitive information such as u
 By using the `attributes` processor in the OTEL Collector configuration to update specific attributes with masked values, sensitive data can be protected.
 
 ```yaml
+# src/otel-collector/otelcol-config.yml
+
 processors:
   attributes:
     actions:
@@ -754,6 +774,8 @@ processors:
 In the application code, sensitive data is being masked before logging or processing. The `MaskSensitiveFields` method ensures that specific fields, such as `BuyerName`, `BuyerIdentityGuid`, and `UserId`, are replaced with `****` in the logs. This prevents sensitive information from being exposed.
 
 ```csharp
+// src/EventBusRabbitMQ/RabbitMQEventBus.cs
+
 private async Task OnMessageReceived(object sender, BasicDeliverEventArgs eventArgs)
 {
     static IEnumerable<string> ExtractTraceContextFromBasicProperties(IBasicProperties props, string key)
@@ -826,6 +848,8 @@ private static string MaskSensitiveFields(string message)
 At database level, the following script establishes a structured and secure multi-database setup by implementing the following measures:
 
 ```sql
+-- src/databases/postgres/init.sql
+
 -----------------------------------------
 -- 1) Criar utilizador e base de dados --
 -----------------------------------------
@@ -932,6 +956,8 @@ This step prevents unauthorized schema modifications and ensures that only the i
 For load testing, I used **Locust**, an open-source load testing tool that allows you to define user behavior using Python code. I created a script to simulate user behavior for the order creation flow.
 
 ```python
+# src/load-generator/locustfile.py
+
 @task
 def send_order_request(self):
   ...
@@ -976,6 +1002,8 @@ def send_order_request(self):
 ```
 
 ```python
+# src/load-generator/locustfile.py
+
 class ConstantUserLoad(LoadTestShape):
     def tick(self, run_time=0):
         return (5, 1)
@@ -1051,29 +1079,17 @@ git clone https://github.com/andreaoliveira9/Projeto-AS-1
 cd Projeto-AS-1
 ```
 
-2. Navigate to the `src/eShop.AppHost` directory.
+2. Run the following command to start the application:
 
 ```bash
-cd src/eShop.AppHost
+dotnet run --project src/eShop.AppHost/eShop.AppHost.csproj 
 ```
 
-3. Run the following command to start the application:
-
-```bash
-dotnet run
-```
-
-4. The web application will start running on `https://localhost:7298`.
+3. The web application will start running on https://localhost:7298.
 
 ### 7.2.2 To run the Observability Stack and Load Testing:
 
-1. Navigate back to the root directory of the repository.
-
-```bash
-cd ../..
-```
-
-2. Run the following command:
+1. Run the following command:
 
 ```bash
 docker compose up -d
@@ -1083,7 +1099,7 @@ docker compose up -d
     - Grafana: http://localhost:3000
     - Jaeger: http://localhost:16686
     - Locust: http://localhost:8089
-    - Prometheus
+    - Prometheus: http://localhost:9090
     - OpenSearch
     - OTEL Collector
 
