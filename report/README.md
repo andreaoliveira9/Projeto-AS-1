@@ -16,15 +16,15 @@
     - [2.1.5. Grafana](#215-grafana)
   - [2.2. eSHop Code Changes](#22-eshop-code-changes)
     - [2.2.1. Connection to OTEL Collector](#221-connection-to-otel-collector)
-    - [2.2.4. Custom Trace Spans and Metrics](#224-custom-trace-spans-and-metrics)
-    - [2.2.5. Trace Enrichment, Tagging and Metrics in Ordering API](#225-trace-enrichment-tagging-and-metrics-in-ordering-api)
-      - [2.2.5.1 Span Creation](#2251-span-creation)
-      - [2.2.5.2 Metrics Collection](#2252-metrics-collection)
-      - [2.2.5.3 How It Works](#2253-how-it-works)
-    - [2.2.6 Trace Enrichment, Tagging and Metrics in Basket API](#226-trace-enrichment-tagging-and-metrics-in-basket-api)
-      - [2.2.6.1 Span Creation](#2261-span-creation)
-      - [2.2.6.2 Metrics Collection](#2262-metrics-collection)
-      - [2.2.6.3 How It Works](#2263-how-it-works)
+    - [2.2.2. Custom Trace Spans and Metrics](#222-custom-trace-spans-and-metrics)
+    - [2.2.3. Trace Enrichment, Tagging and Metrics in Ordering API](#223-trace-enrichment-tagging-and-metrics-in-ordering-api)
+      - [2.2.3.1 Span Creation](#2231-span-creation)
+      - [2.2.3.2 Metrics Collection](#2232-metrics-collection)
+      - [2.2.3.3 How It Works](#2233-how-it-works)
+    - [2.2.4 Trace Enrichment, Tagging and Metrics in Basket API](#224-trace-enrichment-tagging-and-metrics-in-basket-api)
+      - [2.2.4.1 Span Creation](#2241-span-creation)
+      - [2.2.4.2 Metrics Collection](#2242-metrics-collection)
+      - [2.2.4.3 How It Works](#2243-how-it-works)
   - [2.3. Jaeger Traces and Monitoring](#23-jaeger-traces-and-monitoring)
     - [2.3.1. Trace](#231-trace)
     - [2.3.2 Monitoring](#232-monitoring)
@@ -44,7 +44,7 @@
     - [2.3.3. OTEL Collector Dashboard](#233-otel-collector-dashboard)
     - [2.3.4. Spanmetrics Dashboard](#234-spanmetrics-dashboard)
       - [2.3.4.1. Service Latency Quantiles](#2341-service-latency-quantiles)
-    - [2.3.4.2. APM Table: Top 7 Spans \& Errors](#2342-apm-table-top-7-spans--errors)
+      - [2.3.4.2. APM Table: Top 7 Spans \& Errors](#2342-apm-table-top-7-spans--errors)
 - [3. Masking Sensitive Data](#3-masking-sensitive-data)
   - [3.1 OpenTelemetry Collector Configuration](#31-opentelemetry-collector-configuration)
   - [3.2. eShop Code Changes](#32-eshop-code-changes)
@@ -59,9 +59,9 @@
 - [8. GitHub Repository](#8-github-repository)
 
 
-## 1. Selected Feature: Order Creation Flow
+# 1. Selected Feature: Order Creation Flow
 
-### 1.1. Overview
+## 1.1. Overview
 
 The **Order Creation Flow** is a critical feature of the eShop application. It defines the process by which a customer places an order for a product. The trace I implemented includes the following steps:
 
@@ -74,17 +74,17 @@ The **Order Creation Flow** is a critical feature of the eShop application. It d
 
 This flow ensures that orders are processed efficiently and synchronized across the different services of the eShop application.
 
-### 1.2. My Trace Architecture Diagram
+## 1.2. My Trace Architecture Diagram
 
 ![ArchitectureDiagram](./images/architecture_diagram.jpg)
 
-## 2. Observability Implementation
+# 2. Observability Implementation
 
 Observability has been implemented using a combination of **OpenTelemetry (OTEL), Jaeger, Prometheus, Grafana, and OpenSearch** to provide a comprehensive view of system performance, traceability, and metrics collection.
 
-### 2.1. Components Used
+## 2.1. Components Used
 
-#### 2.1.1. OpenTelemetry Collector (OTEL-Collector)
+### 2.1.1. OpenTelemetry Collector (OTEL-Collector)
 
 - Configured to collect traces, metrics, and logs from different services.
 - Supports multiple receivers like `otlp`, `docker_stats`, and `hostmetrics`.
@@ -228,13 +228,13 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
                   endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}"
   ```
 
-#### 2.1.2. Jaeger
+### 2.1.2. Jaeger
 
  - Used for distributed tracing of requests across multiple microservices.
  - Receives trace data from OTEL Collector via OTLP protocol.
  - Stores trace data for visualization and debugging.
 
-#### 2.1.3 Prometheus
+### 2.1.3 Prometheus
 
  - Collects and stores time-series metrics from OTEL Collector.
  - Scrapes metrics from various system components such as OTEL Collector and application services.
@@ -267,14 +267,14 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
           - targets: ["otel-collector:8889"]
     ```
 
-#### 2.1.4. OpenSearch
+### 2.1.4. OpenSearch
 
    - Used as a centralized logging solution.
    - Stores logs received from OTEL Collector.
    - Enables log searching and filtering via OpenSearch Dashboards.
    - Configured in Grafana to enable real-time log monitoring and correlation with traces and metrics.
   
-#### 2.1.5. Grafana
+### 2.1.5. Grafana
 
 - Connects to Prometheus as a data source for visualizing metrics.
 - Uses pre-configured dashboards for monitoring system health and performance.
@@ -334,9 +334,9 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
             version: 2.19.0
       ```
 
-### 2.2. eSHop Code Changes
+## 2.2. eSHop Code Changes
 
-#### 2.2.1. Connection to OTEL Collector
+### 2.2.1. Connection to OTEL Collector
 
 The `OTEL Collector` is the central component for collecting telemetry data from different services. To connect the eShop application to the OTEL Collector, I made the following changes:
 
@@ -374,7 +374,7 @@ private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostAppli
     }
 ```
 
-#### 2.2.4. Custom Trace Spans and Metrics
+### 2.2.2. Custom Trace Spans and Metrics
 
 I added custom trace spans and metrics to the eShop application to provide more detailed insights into the order creation flow. This involved creating custom spans for each step of the flow and recording metrics for key operations.
 
@@ -418,7 +418,7 @@ public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicati
     }
 ```
 
-#### 2.2.5. Trace Enrichment, Tagging and Metrics in Ordering API
+### 2.2.3. Trace Enrichment, Tagging and Metrics in Ordering API
 
 In the `CreateOrderAsync` method of the Orders API, trace enrichment and custom metrics are implemented using OpenTelemetry.
 
@@ -501,7 +501,7 @@ public static class OrdersApi
 }
 ```
 
-##### 2.2.5.1 Span Creation
+#### 2.2.3.1 Span Creation
 
  - A new span is started using `ActivitySource.StartActivity("CreateOrderAsync", ActivityKind.Server)` to track the execution of the CreateOrderAsync method.
 
@@ -515,7 +515,7 @@ public static class OrdersApi
 
    - `processing.time.ms`: Captures the total processing time of the order.
 
-##### 2.2.5.2 Metrics Collection
+#### 2.2.3.2 Metrics Collection
 
 The Meter API from OpenTelemetry is used to track key performance indicators:
 
@@ -531,7 +531,7 @@ The Meter API from OpenTelemetry is used to track key performance indicators:
 
     - `create.order.processing.time`: Records the time taken (in milliseconds) to process an order request.
 
-##### 2.2.5.3 How It Works
+#### 2.2.3.3 How It Works
 
 - **Attempt Tracking:** Every time `CreateOrderAsync` is called, `CreateOrderAttemptsCounter.Add(1)` increments the attempt count.
 
@@ -546,7 +546,7 @@ The Meter API from OpenTelemetry is used to track key performance indicators:
     - **Performance Measurement:** The processing time is measured using a stopwatch and recorded in the `create.order.processing.time` histogram.
 
 
-#### 2.2.6 Trace Enrichment, Tagging and Metrics in Basket API
+### 2.2.4 Trace Enrichment, Tagging and Metrics in Basket API
 
 In the `OrderStartedIntegrationEventHandler` method of the Orders API, trace enrichment and custom metrics are implemented using OpenTelemetry.
 
@@ -588,7 +588,7 @@ public class OrderStartedIntegrationEventHandler(
 }
 ```
 
-##### 2.2.6.1 Span Creation
+#### 2.2.4.1 Span Creation
 
 - A new span is started using `ActivitySource.StartActivity("DeleteBasket", ActivityKind.Internal)` to track the execution of the Handle method in `OrderStartedIntegrationEventHandler`.
 
@@ -600,7 +600,7 @@ public class OrderStartedIntegrationEventHandler(
 
    - `basket.delete.status`: The status of the basket deletion operation (success or error).
 
-##### 2.2.6.2 Metrics Collection
+#### 2.2.4.2 Metrics Collection
 
 The Meter API from OpenTelemetry is used to capture essential performance metrics:
 
@@ -612,7 +612,7 @@ The Meter API from OpenTelemetry is used to capture essential performance metric
 
     - `basket.delete.errors`: Counts failed basket deletions.
 
-##### 2.2.6.3 How It Works
+#### 2.2.4.3 How It Works
    
 - **Attempt Tracking:** Each time a basket delete operation starts, `BasketDeleteAttemptsCounter.Add(1)` increments the attempt count.
 
@@ -622,9 +622,9 @@ The Meter API from OpenTelemetry is used to capture essential performance metric
 
     - If **unsuccessful**, the span is updated with "basket.delete.status" = "error", the error counter is incremented, and an error log is recorded.
 
-### 2.3. Jaeger Traces and Monitoring
+## 2.3. Jaeger Traces and Monitoring
 
-#### 2.3.1. Trace
+### 2.3.1. Trace
 
 The Jaeger UI provides a detailed view of the traces generated
 for the order creation flow. The trace includes spans for each
@@ -633,7 +633,7 @@ services.
 
 ![GeneralTrace](./images/general_trace.jpg)
 
-#### 2.3.2 Monitoring
+### 2.3.2 Monitoring
 
 It also provides monitoring capabilities, allowing
 users to track the performance of services and identify bottlenecks
@@ -641,49 +641,49 @@ or issues in the system.
 
 ![GeneralMonitoring](./images/jaeger_monitor.jpg)
 
-### 2.3. Grafana Dashboards
+## 2.3. Grafana Dashboards
 
-#### 2.3.1 General Dashboard
+### 2.3.1 General Dashboard
 
 ![GeneralDashboard](./images/general_dashboard.jpg)
 
-##### 2.3.1.1. Spanmetrics (RED Metrics)
+#### 2.3.1.1. Spanmetrics (RED Metrics)
 
 - Monitoring of **key tracing metrics** (RED = Requests, Errors, Duration).
 - Contains charts for request rate, error rate, and average span duration.
 
-##### 2.3.1.2. Span Metrics
+#### 2.3.1.2. Span Metrics
 
 - **Requests Rate by Span Name:** Measures the request rate by span name.
 - **Error Rate by Span Name:** Measures the error rate by span name.
 - **Average Duration by Span Name:** Measures the average duration of spans in milliseconds.
 
-##### 2.3.1.3. Log Records
+#### 2.3.1.3. Log Records
 
 - **Log Records by Severity:** Displays the count of logs grouped by severity (e.g., error, warning, info).
 - **100 Most Recent Log Entries:** Shows the 100 latest log records from the system.
 
-##### 2.3.1.4. Application Metrics
+#### 2.3.1.4. Application Metrics
 
 - **CPU Usage of Python Services:** Monitors the CPU percentage used by Python services.
 - **Memory Usage of Python Services:** Tracks memory consumption (RSS) of Python services.
 
-##### 2.3.1.5. Service Dependency
+#### 2.3.1.5. Service Dependency
 
 - **Service Dependency Graph:** Displays a dependency graph between services based on **Jaeger** tracing data.
 
-##### 2.3.1.6. Filters and Customization
+#### 2.3.1.6. Filters and Customization
 
 - **Dynamic variable `service`:** Allows selecting which service to monitor.
 - **Adjustable time range** (default: last 15 minutes).
 
 This **dashboard** provides **comprehensive monitoring** of a distributed system's infrastructure, combining **span tracing (OpenTelemetry), application metrics (Prometheus), and structured logs (OpenSearch)**. It facilitates **bottleneck detection**, **failure analysis**, and **overall system observability**.
 
-#### 2.3.2. Custom Metrics Dashboard
+### 2.3.2. Custom Metrics Dashboard
 
 ![CustomMetrics](./images/custom_metrics.jpg)
 
-##### 2.3.2.1. Ordering API Metrics
+#### 2.3.2.1. Ordering API Metrics
 
 - **Order Creation Attempt Rate per Second:** Tracks the rate of order creation attempts.
 - **Create Order Success Rate:** Displays the percentage of successfully created orders.
@@ -691,34 +691,34 @@ This **dashboard** provides **comprehensive monitoring** of a distributed system
 - **Order Processing Success & Failure Over Time:** Compares the count of successful and failed orders over time.
 - **Order Processing Time Distribution:** Monitors the average processing time of orders in milliseconds.
 
-##### 2.3.2.2. Basket API Metrics
+#### 2.3.2.2. Basket API Metrics
 
 - **Basket Delete Attempt Rate:** Measures the rate at which baskets are deleted.
 - **Basket Delete Failures vs Attempts:** Compares the number of failed and attempted basket deletions.
 
-##### 2.3.2.3. Tracing & Logging
+#### 2.3.2.3. Tracing & Logging
 
 - **Jaeger Tracing for Ordering API:** Displays trace data for **Ordering API** operations.
 - **Custom Metrics from Prometheus:** Utilizes Prometheus queries to extract key performance indicators.
 
-##### 2.3.2.4. Filters and Customization
+#### 2.3.2.4. Filters and Customization
 
 - **Dynamic time range selection** (default: last 15 minutes).
 - **Auto-refresh interval: 10 seconds** to keep data updated in real-time.
 
 This **dashboard** enables **real-time monitoring** of the **Ordering API** and **Basket API**, offering insights into order creation performance, error rates, and system latency. By integrating **Prometheus for metrics** and **Jaeger for tracing**, it provides a **comprehensive view** of the system’s health and operational efficiency.
 
-#### 2.3.3. OTEL Collector Dashboard
+### 2.3.3. OTEL Collector Dashboard
 
 ![OtelCollectorDashboard](./images/otel_collector_dashboard.jpg)
 
 This dashboard provides insights into the performance and health of the OTEL Collector and was taken from the OpenTelemetry demo guide.
 
-#### 2.3.4. Spanmetrics Dashboard
+### 2.3.4. Spanmetrics Dashboard
 
 ![SpanmetricsDashboard](./images/spanmetrics_dashboard.jpg)
 
-##### 2.3.4.1. Service Latency Quantiles
+#### 2.3.4.1. Service Latency Quantiles
 
 - **Top 3x3 - Service Latency (quantile95):** Shows **95th, 99th, and 99.9th percentile** latency metrics for top services.
 - Uses **histogram quantile functions** to track latency variations.
@@ -731,9 +731,9 @@ This dashboard provides insights into the performance and health of the OTEL Col
 
 This **dashboard** provides an **application performance monitoring (APM) perspective** at the span level, helping identify **high-latency spans, error-prone transactions, and bottlenecks**. With **real-time observability**, it enables **faster debugging and performance optimization**.
 
-## 3. Masking Sensitive Data
+# 3. Masking Sensitive Data
 
-### 3.1 OpenTelemetry Collector Configuration
+## 3.1 OpenTelemetry Collector Configuration
 
 To ensure the security and privacy of user data, sensitive information such as credit card numbers and user IDs is masked in logs and traces. This is achieved by using the `attributes` processor in the OTEL Collector configuration to update specific attributes with masked values.
 
@@ -749,7 +749,7 @@ processors:
         value: "****"
 ```
 
-### 3.2. eShop Code Changes
+## 3.2. eShop Code Changes
 
 In the application code, sensitive data is being masked before logging or processing. The MaskSensitiveFields method ensures that specific fields, such as `BuyerName`, `BuyerIdentityGuid`, and `UserId`, are replaced with `****` in the logs. This prevents sensitive information from being exposed.
 
@@ -821,7 +821,7 @@ private static string MaskSensitiveFields(string message)
 }
 ```
 
-### 3.3. Database-Level 
+## 3.3. Database-Level 
 
 At database level, the following script establishes a structured and secure multi-database setup by implementing the following measures:
 
@@ -902,7 +902,7 @@ GRANT ALL ON SCHEMA public TO webhooks_user;
 \connect postgres
 ```
 
-#### 3.3.1. Creation of Users and Databases
+### 3.3.1. Creation of Users and Databases
 
 Each service (Identity, Catalog, Ordering, and Webhooks) gets:
   - A dedicated PostgreSQL user with a unique password.
@@ -910,14 +910,14 @@ Each service (Identity, Catalog, Ordering, and Webhooks) gets:
 
 This design isolates data between different microservices, preventing unauthorized cross-service access.
 
-#### 3.3.2. Restricting and Granting Connection Privileges
+### 3.3.2. Restricting and Granting Connection Privileges
 
 - The script revokes CONNECT permissions from the default PUBLIC role, which means anonymous users cannot access the databases.
 - Only the specific database owner user is granted CONNECT privileges.
 
 This step ensures that only the designated user can connect to its respective database.
 
-#### 3.3.3. Schema-Level Access Control
+### 3.3.3. Schema-Level Access Control
 
 - Inside each database, the script revokes all privileges on the public schema from PUBLIC.
 - This prevents unintended access or modification by any user other than the database owner.
@@ -927,7 +927,7 @@ This step prevents unauthorized schema modifications and ensures that only the i
 
 ![PostgresMask](./images/postgres_mask.jpg)
 
-## 4. Load Testing
+# 4. Load Testing
 
 For load testing, I used **Locust**, an open-source load testing tool that allows you to define user behavior using Python code. I created a Locust script to simulate user behavior for the order creation flow.
 
@@ -986,7 +986,7 @@ In the Locust script, I defined a task to send order requests to the `ordering-a
 ![LocustRequests](./images/locust_requests.jpg)
 ![LocustCharts](./images/locust_charts.jpg)
 
-## 5. Gen AI Tools Usage
+# 5. Gen AI Tools Usage
 
 AI tools including **Claude** and **ChatGPT** played a significant role in the development process:
 
@@ -997,7 +997,7 @@ AI tools including **Claude** and **ChatGPT** played a significant role in the d
 
 The integration of Claude with IntelliJ was particularly useful for real-time code assistance, while ChatGPT provided valuable insights for configuration optimization.
 
-## 6. Challenges and Learnings
+# 6. Challenges and Learnings
 
 Several key challenges were encountered during the implementation:
 
@@ -1009,7 +1009,7 @@ Several key challenges were encountered during the implementation:
 
 These challenges provided valuable learning opportunities and deepened understanding of modern observability practices.
 
-## 7. Conclusion
+# 7. Conclusion
 
 The implementation of observability in the eShop application has significantly enhanced the ability to monitor, debug, and optimize the system. Key achievements include:
 
@@ -1023,7 +1023,7 @@ This observability implementation serves as a foundation for continuous improvem
 
 The combination of OpenTelemetry, Jaeger, Prometheus, Grafana, and OpenSearch has proven to be a powerful and flexible stack for modern application observability, capable of addressing the complex monitoring needs of distributed microservice architectures.
 
-## 8. GitHub Repository
+# 8. GitHub Repository
 
 The complete codebase for the eShop application observability implementation can be found in the GitHub repository:
 
