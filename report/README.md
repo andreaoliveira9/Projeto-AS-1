@@ -926,6 +926,14 @@ GRANT ALL ON SCHEMA public TO webhooks_user;
 \connect postgres
 ```
 
+```csharp
+// src/eShop.AppHost/Program.cs
+
+var identityApi = builder.AddProject<Projects.Identity_API>("identity-api", launchProfileName)
+    .WithExternalHttpEndpoints()
+    .WithReference(identityDb)
+    .WithEnvironment("ConnectionString", "Host=postgres;Database=identitydb;Username=identity_user;Password=senha_identity");
+```
 ### 3.3.1. Creation of Users and Databases
 
 Each service (Identity, Catalog, Ordering, and Webhooks) gets:
