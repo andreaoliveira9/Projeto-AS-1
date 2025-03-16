@@ -57,7 +57,11 @@
   - [6.1 Key Achievements](#61-key-achievements)
   - [6.2 Technical Growth](#62-technical-growth)
   - [6.3 Challenges Overcome](#63-challenges-overcome)
-- [7. GitHub Repository](#7-github-repository)
+- [7. Codebase](#7-codebase)
+  - [7.1. GitHub Repository](#71-github-repository)
+  - [7.2. How to Run](#72-how-to-run)
+    - [7.2.1 To run the eShop application:](#721-to-run-the-eshop-application)
+    - [7.2.2 To run the Observability Stack and Load Testing:](#722-to-run-the-observability-stack-and-load-testing)
 
 
 # 1. Selected Feature: Order Creation Flow
@@ -1025,13 +1029,64 @@ While implementing this observability solution, several challenges were addresse
 
 The observability implementation has transformed our ability to understand and manage the eShop application, providing clear visibility into its operation and enabling more proactive monitoring and troubleshooting. This foundation will continue to support the application's reliability and performance as it evolves and scales.
 
-# 7. GitHub Repository
+# 7. Codebase
+
+## 7.1. GitHub Repository
 
 The complete codebase for the eShop application observability implementation can be found in the GitHub repository:
 
 [
   ![GitHub](https://img.shields.io/badge/View%20on-GitHub-lightgrey?style=for-the-badge&logo=github)
 ](https://github.com/andreaoliveira9/Projeto-AS-1)
+
+  
+## 7.2. How to Run
+
+### 7.2.1 To run the eShop application:
+
+1. Clone the GitHub repository to your local machine.
+
+```bash
+git clone https://github.com/andreaoliveira9/Projeto-AS-1
+cd Projeto-AS-1
+```
+
+2. Navigate to the `src/eShop.AppHost` directory.
+
+```bash
+cd src/eShop.AppHost
+```
+
+3. Run the following command to start the application:
+
+```bash
+dotnet run
+```
+
+4. The web application will start running on `https://localhost:7298`.
+
+### 7.2.2 To run the Observability Stack and Load Testing:
+
+1. Navigate back to the root directory of the repository.
+
+```bash
+cd ../..
+```
+
+2. Run the following command:
+
+```bash
+docker compose up -d
+```
+
+3. The Observability Stack will start running with the following services:
+    - Grafana: http://localhost:3000
+    - Jaeger: http://localhost:16686
+    - Locust: http://localhost:8089
+    - Prometheus
+    - OpenSearch
+    - OTEL Collector
+
 
 
 
