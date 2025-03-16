@@ -26,25 +26,24 @@
       - [2.2.4.2 Metrics Collection](#2242-metrics-collection)
       - [2.2.4.3 How It Works](#2243-how-it-works)
   - [2.3. Jaeger Traces and Monitoring](#23-jaeger-traces-and-monitoring)
-    - [2.3.1. Trace](#231-trace)
+    - [2.3.1. Traces](#231-traces)
     - [2.3.2 Monitoring](#232-monitoring)
-  - [2.3. Grafana Dashboards](#23-grafana-dashboards)
-    - [2.3.1 General Dashboard](#231-general-dashboard)
-      - [2.3.1.1. Spanmetrics (RED Metrics)](#2311-spanmetrics-red-metrics)
-      - [2.3.1.2. Span Metrics](#2312-span-metrics)
-      - [2.3.1.3. Log Records](#2313-log-records)
-      - [2.3.1.4. Application Metrics](#2314-application-metrics)
-      - [2.3.1.5. Service Dependency](#2315-service-dependency)
-      - [2.3.1.6. Filters and Customization](#2316-filters-and-customization)
-    - [2.3.2. Custom Metrics Dashboard](#232-custom-metrics-dashboard)
-      - [2.3.2.1. Ordering API Metrics](#2321-ordering-api-metrics)
-      - [2.3.2.2. Basket API Metrics](#2322-basket-api-metrics)
-      - [2.3.2.3. Tracing \& Logging](#2323-tracing--logging)
-      - [2.3.2.4. Filters and Customization](#2324-filters-and-customization)
-    - [2.3.3. OTEL Collector Dashboard](#233-otel-collector-dashboard)
-    - [2.3.4. Spanmetrics Dashboard](#234-spanmetrics-dashboard)
-      - [2.3.4.1. Service Latency Quantiles](#2341-service-latency-quantiles)
-      - [2.3.4.2. APM Table: Top 7 Spans \& Errors](#2342-apm-table-top-7-spans--errors)
+  - [2.4. Grafana Dashboards](#24-grafana-dashboards)
+    - [2.4.1 General Dashboard](#241-general-dashboard)
+      - [2.4.1.1. Spanmetrics (RED Metrics)](#2411-spanmetrics-red-metrics)
+      - [2.4.1.2. Log Records](#2412-log-records)
+      - [2.4.1.3. Application Metrics](#2413-application-metrics)
+      - [2.4.1.4. Service Dependency](#2414-service-dependency)
+      - [2.4.1.5. Filters and Customization](#2415-filters-and-customization)
+    - [2.4.2. Custom Metrics Dashboard](#242-custom-metrics-dashboard)
+      - [2.4.2.1. Ordering API Metrics](#2421-ordering-api-metrics)
+      - [2.4.2.2. Basket API Metrics](#2422-basket-api-metrics)
+      - [2.4.2.3. Tracing \& Logging](#2423-tracing--logging)
+      - [2.4.2.4. Filters and Customization](#2424-filters-and-customization)
+    - [2.4.3. OTEL Collector Dashboard](#243-otel-collector-dashboard)
+    - [2.4.4. Spanmetrics Dashboard](#244-spanmetrics-dashboard)
+      - [2.4.4.1. Service Latency Quantiles](#2441-service-latency-quantiles)
+      - [2.4.4.2. APM Table: Top 7 Spans \& Errors](#2442-apm-table-top-7-spans--errors)
 - [3. Masking Sensitive Data](#3-masking-sensitive-data)
   - [3.1 OpenTelemetry Collector Configuration](#31-opentelemetry-collector-configuration)
   - [3.2. eShop Code Changes](#32-eshop-code-changes)
@@ -271,12 +270,12 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
 
    - Used as a centralized logging solution.
    - Stores logs received from OTEL Collector.
-   - Enables log searching and filtering via OpenSearch Dashboards.
    - Configured in Grafana to enable real-time log monitoring and correlation with traces and metrics.
   
 ### 2.1.5. Grafana
 
 - Connects to Prometheus as a data source for visualizing metrics.
+- Integrates with Jaeger for trace visualization.
 - Uses pre-configured dashboards for monitoring system health and performance.
 - Installed with the `grafana-opensearch-datasource` plugin for integration with OpenSearch.
 - Configured with multiple data sources:
@@ -338,7 +337,7 @@ Observability has been implemented using a combination of **OpenTelemetry (OTEL)
 
 ### 2.2.1. Connection to OTEL Collector
 
-The `OTEL Collector` is the central component for collecting telemetry data from different services. To connect the eShop application to the OTEL Collector, I made the following changes:
+The `OTEL Collector` is the central component for collecting telemetry data from different services. To connect the application to the OTEL Collector, I made the following changes:
 
 ```csharp
 private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
@@ -376,7 +375,7 @@ private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostAppli
 
 ### 2.2.2. Custom Trace Spans and Metrics
 
-I added custom trace spans and metrics to the eShop application to provide more detailed insights into the order creation flow. This involved creating custom spans for each step of the flow and recording metrics for key operations.
+I added custom trace spans and metrics to provide more detailed insights into the order creation flow. This involved creating custom spans for each step of the flow and recording metrics for key operations.
 
 ```csharp
 public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
@@ -624,66 +623,59 @@ The Meter API from OpenTelemetry is used to capture essential performance metric
 
 ## 2.3. Jaeger Traces and Monitoring
 
-### 2.3.1. Trace
+### 2.3.1. Traces
 
-The Jaeger UI provides a detailed view of the traces generated
-for the order creation flow. The trace includes spans for each
-step of the flow, showing the duration and relationships between
-services.
+The Jaeger UI provides a detailed view of the traces generated for the order creation flow. The trace includes spans for each step of the flow, showing the duration and relationships between services.
 
 ![GeneralTrace](./images/general_trace.jpg)
 
 ### 2.3.2 Monitoring
 
-It also provides monitoring capabilities, allowing
-users to track the performance of services and identify bottlenecks
-or issues in the system.
+It also provides monitoring capabilities, allowing users to track the performance of services and identify bottlenecks or issues in the system.
 
 ![GeneralMonitoring](./images/jaeger_monitor.jpg)
 
-## 2.3. Grafana Dashboards
+## 2.4. Grafana Dashboards
 
-### 2.3.1 General Dashboard
+### 2.4.1 General Dashboard
 
 ![GeneralDashboard](./images/general_dashboard.jpg)
 
-#### 2.3.1.1. Spanmetrics (RED Metrics)
+#### 2.4.1.1. Spanmetrics (RED Metrics)
 
 - Monitoring of **key tracing metrics** (RED = Requests, Errors, Duration).
-- Contains charts for request rate, error rate, and average span duration.
+- Contains charts for request rate, error rate, and average span duration:
+  - **Requests Rate by Span Name:** Measures the request rate by span name.
+  - **Error Rate by Span Name:** Measures the error rate by span name.
+  - **Average Duration by Span Name:** Measures the average duration of spans in milliseconds.
 
-#### 2.3.1.2. Span Metrics
-
-- **Requests Rate by Span Name:** Measures the request rate by span name.
-- **Error Rate by Span Name:** Measures the error rate by span name.
-- **Average Duration by Span Name:** Measures the average duration of spans in milliseconds.
-
-#### 2.3.1.3. Log Records
+#### 2.4.1.2. Log Records
 
 - **Log Records by Severity:** Displays the count of logs grouped by severity (e.g., error, warning, info).
 - **100 Most Recent Log Entries:** Shows the 100 latest log records from the system.
 
-#### 2.3.1.4. Application Metrics
+#### 2.4.1.3. Application Metrics
 
 - **CPU Usage of Python Services:** Monitors the CPU percentage used by Python services.
 - **Memory Usage of Python Services:** Tracks memory consumption (RSS) of Python services.
 
-#### 2.3.1.5. Service Dependency
+#### 2.4.1.4. Service Dependency
 
 - **Service Dependency Graph:** Displays a dependency graph between services based on **Jaeger** tracing data.
 
-#### 2.3.1.6. Filters and Customization
+#### 2.4.1.5. Filters and Customization
 
 - **Dynamic variable `service`:** Allows selecting which service to monitor.
 - **Adjustable time range** (default: last 15 minutes).
+- - **Auto-refresh interval: 10 seconds** to keep data updated in real-time.
 
 This **dashboard** provides **comprehensive monitoring** of a distributed system's infrastructure, combining **span tracing (OpenTelemetry), application metrics (Prometheus), and structured logs (OpenSearch)**. It facilitates **bottleneck detection**, **failure analysis**, and **overall system observability**.
 
-### 2.3.2. Custom Metrics Dashboard
+### 2.4.2. Custom Metrics Dashboard
 
 ![CustomMetrics](./images/custom_metrics.jpg)
 
-#### 2.3.2.1. Ordering API Metrics
+#### 2.4.2.1. Ordering API Metrics
 
 - **Order Creation Attempt Rate per Second:** Tracks the rate of order creation attempts.
 - **Create Order Success Rate:** Displays the percentage of successfully created orders.
@@ -691,51 +683,53 @@ This **dashboard** provides **comprehensive monitoring** of a distributed system
 - **Order Processing Success & Failure Over Time:** Compares the count of successful and failed orders over time.
 - **Order Processing Time Distribution:** Monitors the average processing time of orders in milliseconds.
 
-#### 2.3.2.2. Basket API Metrics
+#### 2.4.2.2. Basket API Metrics
 
 - **Basket Delete Attempt Rate:** Measures the rate at which baskets are deleted.
 - **Basket Delete Failures vs Attempts:** Compares the number of failed and attempted basket deletions.
 
-#### 2.3.2.3. Tracing & Logging
+#### 2.4.2.3. Tracing & Logging
 
 - **Jaeger Tracing for Ordering API:** Displays trace data for **Ordering API** operations.
 - **Custom Metrics from Prometheus:** Utilizes Prometheus queries to extract key performance indicators.
 
-#### 2.3.2.4. Filters and Customization
+#### 2.4.2.4. Filters and Customization
 
 - **Dynamic time range selection** (default: last 15 minutes).
 - **Auto-refresh interval: 10 seconds** to keep data updated in real-time.
 
 This **dashboard** enables **real-time monitoring** of the **Ordering API** and **Basket API**, offering insights into order creation performance, error rates, and system latency. By integrating **Prometheus for metrics** and **Jaeger for tracing**, it provides a **comprehensive view** of the system’s health and operational efficiency.
 
-### 2.3.3. OTEL Collector Dashboard
+### 2.4.3. OTEL Collector Dashboard
 
 ![OtelCollectorDashboard](./images/otel_collector_dashboard.jpg)
 
 This dashboard provides insights into the performance and health of the OTEL Collector and was taken from the OpenTelemetry demo guide.
 
-### 2.3.4. Spanmetrics Dashboard
+### 2.4.4. Spanmetrics Dashboard
 
 ![SpanmetricsDashboard](./images/spanmetrics_dashboard.jpg)
 
-#### 2.3.4.1. Service Latency Quantiles
+#### 2.4.4.1. Service Latency Quantiles
 
 - **Top 3x3 - Service Latency (quantile95):** Shows **95th, 99th, and 99.9th percentile** latency metrics for top services.
 - Uses **histogram quantile functions** to track latency variations.
 
-#### 2.3.4.2. APM Table: Top 7 Spans & Errors
+#### 2.4.4.2. APM Table: Top 7 Spans & Errors
 
-- **Request Rate by Span Name** → Displays the request rate for the top 7 spans.
-- **Error Rate by Span Name** → Shows error occurrences for spans.
-- **Latency distribution** → Provides detailed insights into request processing time.
+- **Request Rate by Span Name:** Displays the request rate for the top 7 spans.
+- **Error Rate by Span Name:** Shows error occurrences for spans.
+- **Latency distribution:** Provides detailed insights into request processing time.
 
 This **dashboard** provides an **application performance monitoring (APM) perspective** at the span level, helping identify **high-latency spans, error-prone transactions, and bottlenecks**. With **real-time observability**, it enables **faster debugging and performance optimization**.
 
 # 3. Masking Sensitive Data
 
+To ensure the security and privacy of user data, sensitive information such as user IDs is masked in logs and traces.
+
 ## 3.1 OpenTelemetry Collector Configuration
 
-To ensure the security and privacy of user data, sensitive information such as credit card numbers and user IDs is masked in logs and traces. This is achieved by using the `attributes` processor in the OTEL Collector configuration to update specific attributes with masked values.
+By using the `attributes` processor in the OTEL Collector configuration to update specific attributes with masked values, sensitive data can be protected.
 
 ```yaml
 processors:
@@ -751,7 +745,7 @@ processors:
 
 ## 3.2. eShop Code Changes
 
-In the application code, sensitive data is being masked before logging or processing. The MaskSensitiveFields method ensures that specific fields, such as `BuyerName`, `BuyerIdentityGuid`, and `UserId`, are replaced with `****` in the logs. This prevents sensitive information from being exposed.
+In the application code, sensitive data is being masked before logging or processing. The `MaskSensitiveFields` method ensures that specific fields, such as `BuyerName`, `BuyerIdentityGuid`, and `UserId`, are replaced with `****` in the logs. This prevents sensitive information from being exposed.
 
 ```csharp
 private async Task OnMessageReceived(object sender, BasicDeliverEventArgs eventArgs)
@@ -929,7 +923,7 @@ This step prevents unauthorized schema modifications and ensures that only the i
 
 # 4. Load Testing
 
-For load testing, I used **Locust**, an open-source load testing tool that allows you to define user behavior using Python code. I created a Locust script to simulate user behavior for the order creation flow.
+For load testing, I used **Locust**, an open-source load testing tool that allows you to define user behavior using Python code. I created a script to simulate user behavior for the order creation flow.
 
 ```python
 @task
@@ -981,7 +975,7 @@ class ConstantUserLoad(LoadTestShape):
         return (5, 1)
 ```
 
-In the Locust script, I defined a task to send order requests to the `ordering-api` endpoint. The task simulates a user placing an order with specific details. I also created a load test shape to maintain a constant load of 5 users per second throughout the test.
+I defined a task to send order requests to the `ordering-api` endpoint. The task simulates a user placing an order with specific details. I also created a load test shape to maintain a constant load of 5 users per second throughout the test.
 
 ![LocustRequests](./images/locust_requests.jpg)
 ![LocustCharts](./images/locust_charts.jpg)
@@ -990,10 +984,10 @@ In the Locust script, I defined a task to send order requests to the `ordering-a
 
 AI tools including **Claude** and **ChatGPT** played a significant role in the development process:
 
-- **Code Assistance:** Helped with writing and debugging instrumentation code
-- **Documentation:** Assisted in structuring and refining the project report
-- **Conceptual Understanding:** Provided clarification on OpenTelemetry concepts and implementation approaches
-- **Development Acceleration:** Reduced research and experimentation time
+- **Code Assistance:** Helped with writing and debugging instrumentation code.
+- **Documentation:** Assisted in structuring and refining the project report.
+- **Conceptual Understanding:** Provided clarification on OpenTelemetry concepts and implementation approaches.
+- **Development Acceleration:** Reduced research and experimentation time.
 
 The integration of Claude with IntelliJ was particularly useful for real-time code assistance, while ChatGPT provided valuable insights for configuration optimization.
 
