@@ -56,6 +56,7 @@
 - [5. Gen AI Tools Usage](#5-gen-ai-tools-usage)
 - [6. Challenges and Learnings](#6-challenges-and-learnings)
 - [7. Conclusion](#7-conclusion)
+- [8. GitHub Repository](#8-github-repository)
 
 
 ## 1. Selected Feature: Order Creation Flow
@@ -1021,6 +1022,15 @@ The implementation of observability in the eShop application has significantly e
 This observability implementation serves as a foundation for continuous improvement, enabling data-driven optimization of the eShop application's performance, reliability, and user experience.
 
 The combination of OpenTelemetry, Jaeger, Prometheus, Grafana, and OpenSearch has proven to be a powerful and flexible stack for modern application observability, capable of addressing the complex monitoring needs of distributed microservice architectures.
+
+## 8. GitHub Repository
+
+The complete codebase for the eShop application observability implementation can be found in the GitHub repository:
+
+[
+  ![GitHub](https://img.shields.io/badge/View%20on-GitHub-lightgrey?style=for-the-badge&logo=github)
+](https://github.com/andreaoliveira9/Projeto-AS-1)
+
 
 
 
